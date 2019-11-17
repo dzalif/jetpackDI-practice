@@ -1,14 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/navigation"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
     app:startDestination="@id/searchFragment">
 
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.kucingselfie.jetpackdipractice.ui.search.SearchFragment"
-        android:label="SearchFragment" >
-<!--        <action-->
-<!--            android:id="@+id/showRepo"-->
-<!--            app:destination="@id/repoFragment" />-->
+        android:label="SearchFragment">
+        <action
+            android:id="@+id/showRepo"
+            app:destination="@id/repoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/repoFragment"
+        android:name="com.kucingselfie.jetpackdipractice.ui.repo.RepoFragment"
+        android:label="fragment_repo"
+        tools:layout="@layout/fragment_repo">
+        <argument
+            android:name="owner"
+            app:argType="string" />
+        <argument
+            android:name="name"
+            app:argType="string" />
     </fragment>
 </navigation>

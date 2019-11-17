@@ -11,7 +11,7 @@ import java.io.IOException
 /**
  * A task that reads the search result in the database and fetches the next page, if it has one.
  */
-class FetchNextPageSearchTask constructor(
+class FetchNextSearchPageTask constructor(
     private val query: String,
     private val githubService: GithubService,
     private val db: GithubDb
@@ -30,10 +30,10 @@ class FetchNextPageSearchTask constructor(
             _liveData.postValue(Resource.success(false))
             return
         }
-
         val newValue = try {
             val response = githubService.searchRepos(query, nextPage).execute()
-            when(val apiResponse = ApiResponse.create(response)) {
+            val apiResponse = ApiResponse.create(response)
+            when (apiResponse) {
                 is ApiSuccessResponse -> {
                     // we merge all repo ids into 1 list so that it is easier to fetch the
                     // result list.
@@ -58,6 +58,7 @@ class FetchNextPageSearchTask constructor(
                     Resource.error(apiResponse.errorMessage, true)
                 }
             }
+
         } catch (e: IOException) {
             Resource.error(e.message!!, true)
         }

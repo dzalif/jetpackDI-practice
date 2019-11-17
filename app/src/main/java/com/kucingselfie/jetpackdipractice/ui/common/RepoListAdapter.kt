@@ -13,29 +13,35 @@ import com.kucingselfie.jetpackdipractice.vo.Repo
 class RepoListAdapter(
     private val dataBindingComponent: DataBindingComponent,
     appExecutors: AppExecutors,
-    private val showFullname: Boolean,
-    private val repoClickBack: ((Repo) -> Unit)?
+    private val showFullName: Boolean,
+    private val repoClickCallback: ((Repo) -> Unit)?
 ) : DataBoundListAdapter<Repo, RepoItemBinding>(
     appExecutors = appExecutors,
     diffCallback = object : DiffUtil.ItemCallback<Repo>() {
         override fun areItemsTheSame(oldItem: Repo, newItem: Repo): Boolean {
-            return oldItem.owner == newItem.owner && oldItem.name == newItem.name
+            return oldItem.owner == newItem.owner
+                    && oldItem.name == newItem.name
         }
+
         override fun areContentsTheSame(oldItem: Repo, newItem: Repo): Boolean {
-            return oldItem.description == newItem.description && oldItem.stars == newItem.stars
+            return oldItem.description == newItem.description
+                    && oldItem.stars == newItem.stars
         }
     }
 ) {
+
     override fun createBinding(parent: ViewGroup): RepoItemBinding {
         val binding = DataBindingUtil.inflate<RepoItemBinding>(
             LayoutInflater.from(parent.context),
             R.layout.repo_item,
-            parent, false, dataBindingComponent
+            parent,
+            false,
+            dataBindingComponent
         )
-        binding.showFullName = showFullname
+        binding.showFullName = showFullName
         binding.root.setOnClickListener {
             binding.repo?.let {
-                repoClickBack?.invoke(it)
+                repoClickCallback?.invoke(it)
             }
         }
         return binding

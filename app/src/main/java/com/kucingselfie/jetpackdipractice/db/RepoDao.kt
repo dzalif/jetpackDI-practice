@@ -57,8 +57,7 @@ abstract class RepoDao {
             order.put(it.value, it.index)
         }
         return Transformations.map(loadById(repoIds)) { repositories ->
-            Collections.sort(repositories) {
-                r1, r2 ->
+            Collections.sort(repositories) { r1, r2 ->
                 val pos1 = order.get(r1.id)
                 val pos2 = order.get(r2.id)
                 pos1 - pos2

@@ -60,6 +60,7 @@ class SearchFragment : Fragment(), Injectable {
             false,
             dataBindingComponent
         )
+
         return binding.root
     }
 
@@ -69,10 +70,10 @@ class SearchFragment : Fragment(), Injectable {
         val rvAdapter = RepoListAdapter(
             dataBindingComponent = dataBindingComponent,
             appExecutors = appExecutors,
-            showFullname = true
-        ) {
+            showFullName = true
+        ) { repo ->
 //            navController().navigate(
-////                SearchFragmentDirections.showRepo(it.owner.login, it.name)
+//                SearchFragmentDirections.showRepo(repo.owner.login, repo.name)
 //            )
         }
         binding.query = searchViewModel.query
@@ -107,14 +108,15 @@ class SearchFragment : Fragment(), Injectable {
         }
     }
 
-    private fun doSearch(view: View) {
+    private fun doSearch(v: View) {
         val query = binding.input.text.toString()
         // Dismiss keyboard
-        dismissKeyboard(view.windowToken)
+        dismissKeyboard(v.windowToken)
         searchViewModel.setQuery(query)
     }
 
     private fun initRecyclerView() {
+
         binding.repoList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 val layoutManager = recyclerView.layoutManager as LinearLayoutManager
@@ -124,17 +126,17 @@ class SearchFragment : Fragment(), Injectable {
                 }
             }
         })
-
         binding.searchResult = searchViewModel.results
         searchViewModel.results.observe(viewLifecycleOwner, Observer { result ->
             adapter.submitList(result?.data)
         })
 
-        searchViewModel.loadMoreStatus.observe(viewLifecycleOwner, Observer {
-            if(it == null) binding.loadingMore = false
-            else {
-                binding.loadingMore = it.isRunning
-                val error = it.errorMessageIfNotHandled
+        searchViewModel.loadMoreStatus.observe(viewLifecycleOwner, Observer { loadingMore ->
+            if (loadingMore == null) {
+                binding.loadingMore = false
+            } else {
+                binding.loadingMore = loadingMore.isRunning
+                val error = loadingMore.errorMessageIfNotHandled
                 if (error != null) {
                     Snackbar.make(binding.loadMoreBar, error, Snackbar.LENGTH_LONG).show()
                 }

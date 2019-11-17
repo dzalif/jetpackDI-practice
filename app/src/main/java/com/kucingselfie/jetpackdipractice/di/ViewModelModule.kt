@@ -2,6 +2,7 @@ package com.kucingselfie.jetpackdipractice.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.kucingselfie.jetpackdipractice.ui.repo.RepoViewModel
 import com.kucingselfie.jetpackdipractice.ui.search.SearchViewModel
 import com.kucingselfie.jetpackdipractice.viewmodel.GithubViewModelFactory
 import dagger.Binds
@@ -14,6 +15,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(SearchViewModel::class)
     abstract fun bindSearchViewModel(searchViewModel: SearchViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(RepoViewModel::class)
+    abstract fun bindRepoViewModel(searchViewModel: RepoViewModel): ViewModel
 
     @Binds
     abstract fun bindViewModelFactory(factory: GithubViewModelFactory): ViewModelProvider.Factory
