@@ -40,7 +40,7 @@ class RepoFragment : Fragment(), Injectable {
     lateinit var appExecutors: AppExecutors
 
     // mutable for testing
-    private var dataBindingComponent: DataBindingComponent = FragmentDataBindingComponent(this)
+    var dataBindingComponent: DataBindingComponent = FragmentDataBindingComponent(this)
     var binding by autoCleared<FragmentRepoBinding>()
 
     private val params by navArgs<RepoFragmentArgs>()
@@ -67,7 +67,6 @@ class RepoFragment : Fragment(), Injectable {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         val params = RepoFragmentArgs.fromBundle(arguments!!)
         repoViewModel.setId(params.owner, params.name)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -76,9 +75,9 @@ class RepoFragment : Fragment(), Injectable {
         val adapter = ContributorAdapter(dataBindingComponent, appExecutors) {
             contributor, imageView ->
             val extras = FragmentNavigatorExtras(imageView to contributor.login)
-//            navController().navigate(
-//                RepoFragmentDirections.showUser(contributor.login, contributor.avatarUrl), extras
-//            )
+            navController().navigate(
+                RepoFragmentDirections.showUser(contributor.login, contributor.avatarUrl), extras
+            )
         }
         this.adapter = adapter
         binding.contributorList.adapter = adapter

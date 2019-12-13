@@ -21,7 +21,7 @@ android {
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "com.kucingselfie.jetpackdipractice"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -84,6 +84,8 @@ dependencies {
     implementation deps.timber
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0'
     kapt deps.dagger.android_support_compiler
     kapt deps.dagger.compiler
     kapt deps.room.compiler

@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.kucingselfie.jetpackdipractice.api.GithubService
 import com.kucingselfie.jetpackdipractice.db.GithubDb
 import com.kucingselfie.jetpackdipractice.db.RepoDao
+import com.kucingselfie.jetpackdipractice.db.UserDao
 import com.kucingselfie.jetpackdipractice.util.LiveDataCallAdapterFactory
 import dagger.Module
 import dagger.Provides
@@ -37,5 +38,11 @@ class AppModule {
     @Provides
     fun provideRepoDao(db: GithubDb): RepoDao {
         return db.repoDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideUserDao(db: GithubDb): UserDao {
+        return db.userDao()
     }
 }

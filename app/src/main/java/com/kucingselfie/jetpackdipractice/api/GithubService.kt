@@ -3,6 +3,7 @@ package com.kucingselfie.jetpackdipractice.api
 import androidx.lifecycle.LiveData
 import com.kucingselfie.jetpackdipractice.vo.Contributor
 import com.kucingselfie.jetpackdipractice.vo.Repo
+import com.kucingselfie.jetpackdipractice.vo.User
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -29,4 +30,7 @@ interface GithubService {
         @Path("owner") owner: String,
         @Path("name") name: String
     ): LiveData<ApiResponse<List<Contributor>>>
+
+    @GET("users/{login}")
+    fun getUser(@Path("login") login: String): LiveData<ApiResponse<User>>
 }

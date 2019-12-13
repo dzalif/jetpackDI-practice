@@ -3,17 +3,18 @@ package com.kucingselfie.jetpackdipractice.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.kucingselfie.jetpackdipractice.AppExecutors
-import com.kucingselfie.jetpackdipractice.api.ApiResponse
 import com.kucingselfie.jetpackdipractice.api.ApiSuccessResponse
 import com.kucingselfie.jetpackdipractice.api.GithubService
 import com.kucingselfie.jetpackdipractice.api.RepoSearchResponse
 import com.kucingselfie.jetpackdipractice.db.GithubDb
 import com.kucingselfie.jetpackdipractice.db.RepoDao
 import com.kucingselfie.jetpackdipractice.util.AbsentLiveData
+import com.kucingselfie.jetpackdipractice.util.RateLimiter
 import com.kucingselfie.jetpackdipractice.vo.Contributor
 import com.kucingselfie.jetpackdipractice.vo.Repo
 import com.kucingselfie.jetpackdipractice.vo.RepoSearchResult
 import com.kucingselfie.jetpackdipractice.vo.Resource
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,6 +25,7 @@ class RepoRepository @Inject constructor(
     private val repoDao: RepoDao,
     private val githubService: GithubService
 ) {
+    private val repoListRateLimit = RateLimiter<String>(10, TimeUnit.MINUTES)
 
     fun searchNextPage(query: String): LiveData<Resource<Boolean>> {
         val fetchNextSearchPageTask = FetchNextSearchPageTask(
@@ -124,6 +126,26 @@ class RepoRepository @Inject constructor(
             override fun loadFromDb() = repoDao.loadContributors(owner, name)
 
             override fun createCall() = githubService.getContributors(owner, name)
+        }.asLiveData()
+    }
+
+    fun loadRepos(owner: String): LiveData<Resource<List<Repo>>> {
+        return object : NetworkBoundResource<List<Repo>, List<Repo>>(appExecutors) {
+            override fun saveCallResult(item: List<Repo>) {
+                repoDao.insertRepos(item)
+            }
+
+            override fun shouldFetch(data: List<Repo>?): Boolean {
+                return data == null || data.isEmpty() || repoListRateLimit.shouldFetch(owner)
+            }
+
+            override fun loadFromDb() = repoDao.loadRepositories(owner)
+
+            override fun createCall() = githubService.getRepos(owner)
+
+            override fun onFetchFailed() {
+                repoListRateLimit.reset(owner)
+            }
         }.asLiveData()
     }
 
