@@ -72,9 +72,9 @@ class SearchFragment : Fragment(), Injectable {
             appExecutors = appExecutors,
             showFullName = true
         ) { repo ->
-//            navController().navigate(
-//                SearchFragmentDirections.showRepo(repo.owner.login, repo.name)
-//            )
+            navController().navigate(
+                SearchFragmentDirections.showRepo(repo.owner.login, repo.name)
+            )
         }
         binding.query = searchViewModel.query
         binding.repoList.adapter = rvAdapter

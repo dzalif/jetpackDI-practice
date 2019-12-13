@@ -3,12 +3,14 @@ package com.kucingselfie.jetpackdipractice.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.kucingselfie.jetpackdipractice.AppExecutors
+import com.kucingselfie.jetpackdipractice.api.ApiResponse
 import com.kucingselfie.jetpackdipractice.api.ApiSuccessResponse
 import com.kucingselfie.jetpackdipractice.api.GithubService
 import com.kucingselfie.jetpackdipractice.api.RepoSearchResponse
 import com.kucingselfie.jetpackdipractice.db.GithubDb
 import com.kucingselfie.jetpackdipractice.db.RepoDao
 import com.kucingselfie.jetpackdipractice.util.AbsentLiveData
+import com.kucingselfie.jetpackdipractice.vo.Contributor
 import com.kucingselfie.jetpackdipractice.vo.Repo
 import com.kucingselfie.jetpackdipractice.vo.RepoSearchResult
 import com.kucingselfie.jetpackdipractice.vo.Resource
@@ -72,4 +74,57 @@ class RepoRepository @Inject constructor(
             }
         }.asLiveData()
     }
+
+    fun loadRepo(owner: String, name: String): LiveData<Resource<Repo>> {
+        return object : NetworkBoundResource<Repo, Repo>(appExecutors) {
+            override fun saveCallResult(item: Repo) {
+                repoDao.insert(item)
+            }
+
+            override fun loadFromDb() = repoDao.load(
+                ownerLogin = owner,
+                name = name
+            )
+
+            override fun shouldFetch(data: Repo?) = data == null
+
+            override fun createCall() = githubService.getRepo(
+                owner = owner,
+                name = name
+            )
+        }.asLiveData()
+    }
+
+    fun loadContributors(owner: String, name: String): LiveData<Resource<List<Contributor>>> {
+        return object : NetworkBoundResource<List<Contributor>, List<Contributor>>(appExecutors) {
+            override fun saveCallResult(item: List<Contributor>) {
+                item.forEach {
+                    it.repoName = name
+                    it.repoOwner = owner
+                }
+                db.runInTransaction {
+                    repoDao.createRepoIfNotExists(
+                        Repo(
+                            id = Repo.UNKNOWN_ID,
+                            name = name,
+                            fullName = "$owner/$name",
+                            description = "",
+                            owner = Repo.Owner(owner, null),
+                            stars = 0
+                        )
+                    )
+                    repoDao.insertContributors(item)
+                }
+            }
+
+            override fun shouldFetch(data: List<Contributor>?): Boolean {
+                return data == null || data.isEmpty()
+            }
+
+            override fun loadFromDb() = repoDao.loadContributors(owner, name)
+
+            override fun createCall() = githubService.getContributors(owner, name)
+        }.asLiveData()
+    }
+
 }
